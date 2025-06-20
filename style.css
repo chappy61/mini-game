@@ -163,24 +163,40 @@ body::before {
     bottom: 2rem;
     width: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between; /* ← ボタンを左右端に */
+    padding: 0 1rem;
+    box-sizing: border-box;
     z-index: 1000;
   }
 
   .mobile-controls button {
+    width: 40%; /* 固定幅で左右寄せしやすく */
+    margin: 0;
     background: rgba(255, 255, 255, 0.05);
     color: #aee;
     border: 1px solid #555;
     font-size: 2rem;
-    padding: 1rem 2rem;
+    padding: 1rem 0;
     border-radius: 1rem;
     backdrop-filter: blur(6px);
     box-shadow: 0 0 8px rgba(100, 200, 255, 0.2);
     transition: all 0.2s ease;
   }
 
-  .mobile-controls button:active {
-    background: rgba(100, 200, 255, 0.1);
-    box-shadow: 0 0 12px rgba(100, 200, 255, 0.4);
+  .mobile-start-btn,
+  .mobile-restart-btn {
+    position: fixed;
+    bottom: 7rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    padding: 1rem 2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #555;
+    color: #aee;
+    border-radius: 1rem;
+    z-index: 1001;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 8px rgba(100, 200, 255, 0.2);
   }
 }

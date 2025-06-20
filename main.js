@@ -42,6 +42,10 @@ function startGame() {
 
   enemyInterval = setInterval(spawnEnemy, 1000);
   bulletInterval = setInterval(spawnBullet, 800);
+
+  document.getElementById('mobileStartBtn')?.classList.add('hidden');
+ document.getElementById('mobileRestartBtn')?.classList.add('hidden');
+
 }
 
 // ==========================
@@ -185,4 +189,20 @@ function triggerGameOver() {
   guide.style.display = 'none';
   finalScore.textContent = `SCORE: ${score}`;
   resultScreen.classList.remove('hidden');
+
+  if (window.innerWidth <= 768) {
+  document.getElementById('mobileRestartBtn')?.classList.remove('hidden');
 }
+
+}
+
+// スマホでゲームスタート
+document.getElementById('mobileStartBtn')?.addEventListener('click', () => {
+  startGame();
+});
+
+// スマホでリスタート
+document.getElementById('mobileRestartBtn')?.addEventListener('click', () => {
+  startGame();
+});
+
