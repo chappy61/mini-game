@@ -5,7 +5,10 @@ const guide = document.getElementById('guide');
 const gameOverDisplay = document.getElementById('gameOver');
 const startScreen = document.getElementById('startScreen');
 const resultScreen = document.getElementById('resultScreen');
-const finalScore = document.getElementById('finalScore')
+const finalScore = document.getElementById('finalScore');
+const scoreDisplay = document.getElementById('scoreDisplay');
+const leftBtn = document.getElementById('left-btn');
+const rightBtn = document.getElementById('right-btn');
 
 let playerX = gameArea.offsetWidth / 2;
 let hp = 3;
@@ -15,14 +18,14 @@ let enemyInterval;
 let bulletInterval;
 
 // ==========================
-// スタート画面
+// ゲーム開始・再開
 // ==========================
-// Enterでゲーム開始
 document.addEventListener('keydown', (e) => {
-  if (!isGameRunning && e.key === 'Enter') {
+  if (!isGameRunning && (e.key === 'Enter' || e.key === 'r')) {
     startGame();
   }
 });
+
 function startGame() {
   startScreen.classList.add('hidden');
   resultScreen.classList.add('hidden');
@@ -30,40 +33,62 @@ function startGame() {
   score = 0;
   hp = 3;
   updateHPDisplay();
-  updateScoreDisplay(); // あとで作る
+  updateScoreDisplay();
 
   playerX = gameArea.offsetWidth / 2;
   player.style.left = `${playerX}px`;
 
-  // 敵＆弾の発生開始
+  guide.style.display = 'block';
+
   enemyInterval = setInterval(spawnEnemy, 1000);
   bulletInterval = setInterval(spawnBullet, 800);
 }
 
 // ==========================
-// プレイヤー移動
+// 移動操作
 // ==========================
-document.addEventListener('keydown', (e) => {
+function moveLeft() {
+  const step = 20;
+  playerX -= step;
+  if (playerX < 0) playerX = 0;
+  player.style.left = `${playerX}px`;
+}
+
+function moveRight() {
   const step = 20;
   const areaWidth = gameArea.offsetWidth;
-
-  if (e.key === 'ArrowLeft') playerX -= step;
-  if (e.key === 'ArrowRight') playerX += step;
-
-  // 範囲制限
-  if (playerX < 0) playerX = 0;
+  playerX += step;
   if (playerX > areaWidth) playerX = areaWidth;
-
   player.style.left = `${playerX}px`;
+}
+
+// PCキー操作
+document.addEventListener('keydown', (e) => {
+  if (!isGameRunning) return;
+  if (e.key === 'ArrowLeft') moveLeft();
+  if (e.key === 'ArrowRight') moveRight();
+});
+
+// スマホタッチ操作対応
+['touchstart', 'mousedown'].forEach(evt => {
+  leftBtn?.addEventListener(evt, (e) => {
+    if (isGameRunning) moveLeft();
+  });
+  rightBtn?.addEventListener(evt, (e) => {
+    if (isGameRunning) moveRight();
+  });
 });
 
 // ==========================
-// HP表示
+// 表示更新
 // ==========================
 function updateHPDisplay() {
   hpDisplay.textContent = `HP: ${hp}`;
 }
-updateHPDisplay();
+
+function updateScoreDisplay() {
+  scoreDisplay.textContent = `SCORE: ${score}`;
+}
 
 // ==========================
 // 当たり判定
@@ -71,7 +96,6 @@ updateHPDisplay();
 function isColliding(a, b) {
   const rectA = a.getBoundingClientRect();
   const rectB = b.getBoundingClientRect();
-
   return !(
     rectA.bottom < rectB.top ||
     rectA.top > rectB.bottom ||
@@ -95,21 +119,15 @@ function spawnEnemy() {
     posY += 4;
     enemy.style.top = posY + 'px';
 
-    // 敵 vs プレイヤー
     if (isColliding(enemy, player)) {
       clearInterval(fall);
       enemy.remove();
       hp--;
       updateHPDisplay();
-      console.log(`>>> HIT DETECTED - HP: ${hp}`);
-      if (hp <= 0) {
-        console.log(">>> PROCESS TERMINATED");
-        triggerGameOver();
-      }
+      if (hp <= 0) triggerGameOver();
       return;
     }
 
-    // 下に出たら削除
     if (posY > window.innerHeight) {
       clearInterval(fall);
       enemy.remove();
@@ -120,8 +138,6 @@ function spawnEnemy() {
 // ==========================
 // 弾（▲）生成
 // ==========================
-const bullets = [];
-
 function spawnBullet() {
   const bullet = document.createElement('div');
   bullet.classList.add('bullet');
@@ -133,7 +149,6 @@ function spawnBullet() {
   bullet.style.top = playerRect.top - areaRect.top - 10 + 'px';
 
   gameArea.appendChild(bullet);
-  bullets.push(bullet);
 
   let posY = playerRect.top - areaRect.top - 10;
   const speed = 6;
@@ -144,13 +159,13 @@ function spawnBullet() {
 
     const enemies = document.querySelectorAll('.enemy');
     enemies.forEach(enemy => {
-        if (isColliding(bullet, enemy)) {
+      if (isColliding(bullet, enemy)) {
         enemy.remove();
         bullet.remove();
         clearInterval(move);
         score++;
         updateScoreDisplay();
-        }
+      }
     });
 
     if (posY < 0) {
@@ -161,7 +176,7 @@ function spawnBullet() {
 }
 
 // ==========================
-// ゲームオーバー演出
+// ゲームオーバー処理
 // ==========================
 function triggerGameOver() {
   isGameRunning = false;
@@ -171,41 +186,3 @@ function triggerGameOver() {
   finalScore.textContent = `SCORE: ${score}`;
   resultScreen.classList.remove('hidden');
 }
-
-
-// （補助：キー操作切り離し）
-function handleMovement(e) {
-  const step = 20;
-  const areaWidth = gameArea.offsetWidth;
-
-  if (e.key === 'ArrowLeft') playerX -= step;
-  if (e.key === 'ArrowRight') playerX += step;
-
-  if (playerX < 0) playerX = 0;
-  if (playerX > areaWidth) playerX = areaWidth;
-
-  player.style.left = `${playerX}px`;
-}
-document.addEventListener('keydown', (e) => {
-  if (!isGameRunning && e.key === 'r') {
-    startGame();
-  }
-});
-// ==========================
-// スコア処理
-// ==========================
-const scoreDisplay = document.getElementById('scoreDisplay');
-
-function updateScoreDisplay() {
-  scoreDisplay.textContent = `SCORE: ${score}`;
-}
-
-// ==========================
-// 開始処理
-// ==========================
-enemyInterval = setInterval(spawnEnemy, 1000);
-bulletInterval = setInterval(spawnBullet, 800);
-
-clearInterval(enemyInterval);
-clearInterval(bulletInterval);
-

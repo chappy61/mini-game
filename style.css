@@ -157,3 +157,30 @@ body::before {
   font-size: 18px;
   user-select: none;
 }
+@media screen and (max-width: 768px) {
+  .mobile-controls {
+    position: fixed;
+    bottom: 2rem;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    z-index: 1000;
+  }
+
+  .mobile-controls button {
+    background: rgba(255, 255, 255, 0.05);
+    color: #aee;
+    border: 1px solid #555;
+    font-size: 2rem;
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 8px rgba(100, 200, 255, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  .mobile-controls button:active {
+    background: rgba(100, 200, 255, 0.1);
+    box-shadow: 0 0 12px rgba(100, 200, 255, 0.4);
+  }
+}
