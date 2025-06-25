@@ -1,13 +1,16 @@
 body {
   margin: 0;
-  background: linear-gradient(to bottom, #06040f, #0a1024);
-  color: white;
+  background: linear-gradient(to left, #0a0a0a 0%, #0a0a0a 33.33%, #fff 33.33%, #fff 66.66%, #0a0a0a 66.66%, #0a0a0a 100%);
+  color: #111;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  font-family: 'Orbitron', monospace, 'Courier New', monospace;
+  user-select: none;
 }
+
 
 body::before {
   content: "";
@@ -20,6 +23,30 @@ body::before {
   z-index: 0;
   background: radial-gradient(circle at 50% 50%, rgba(240,240,240,0) 35%, rgba(0,0,0,0.5) 85%);
 }
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.02),
+    rgba(255,255,255,0.02) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  z-index: 999;
+  mix-blend-mode: overlay;
+  animation: flicker 1.5s infinite;
+}
+@keyframes flicker {
+  0%, 100% { opacity: 0.05; }
+  50% { opacity: 0.15; }
+}
+
 .stars {
   position: fixed;
   width: 100%;
@@ -68,7 +95,7 @@ body::before {
   font-size: 40px;
   transition: left 0.05s;
   user-select: none;
-  color: #00eaff;
+  color: #000000;
   text-shadow: 0 0 5px #00eaff, 0 0 15px #00eaff;
 }
 
@@ -77,7 +104,7 @@ body::before {
   top: 0;
   font-size: 30px;
   user-select: none;
-  color: #ff4081;
+  color: #000000;
   text-shadow: 0 0 5px #ff4081, 0 0 15px #ff79a6;
   font-weight: bold;
 }
@@ -88,8 +115,8 @@ body::before {
   height: 20px;
   font-size: 20px;
   user-select: none;
-  color: #00eaff;
-  text-shadow: 0 0 5px #00eaff;
+  color: #3ff29378;
+  text-shadow: 0 0 5px #03ff6c;
 }
 
 .hp {
@@ -112,17 +139,7 @@ body::before {
   font-size: 18px;
   opacity: 0.8;
 }
-.game-over {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 48px;
-  font-family: monospace;
-  color: red;
-  text-shadow: 0 0 10px red, 0 0 20px red;
-  display: none;
-}
+
 .overlay-screen {
   position: absolute;
   width: 100%;
@@ -157,46 +174,72 @@ body::before {
   font-size: 18px;
   user-select: none;
 }
-@media screen and (max-width: 768px) {
+/* UI 上部（スコア・HP） */
+.ui-top-bar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 20px;
+  font-family: monospace;
+  font-size: 16px;
+  z-index: 1000;
+  color: white;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+}
+
+/* 全体ラッパー */
+.game-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 矢印ボタン配置 */
+.mobile-controls {
+  width: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+.mobile-controls.left {
+  position: absolute;
+  left: 0;
+  bottom: 20px;
+}
+.mobile-controls.right {
+  position: absolute;
+  right: 0;
+  bottom: 20px;
+}
+
+.mobile-controls button {
+  background: rgba(255, 255, 255, 0.1);
+  color: cyan;
+  border: 1px solid cyan;
+  font-size: 24px;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 6px cyan;
+}
+/* まずはデフォルトは非表示にしておく */
+.mobile-controls {
+  display: none;
+}
+
+/* スマホなど画面幅768px以下で表示 */
+@media (max-width: 768px) {
   .mobile-controls {
-    position: fixed;
-    bottom: 2rem;
-    width: 100%;
     display: flex;
-    justify-content: space-between; /* ← ボタンを左右端に */
-    padding: 0 1rem;
-    box-sizing: border-box;
-    z-index: 1000;
-  }
-
-  .mobile-controls button {
-    width: 40%; /* 固定幅で左右寄せしやすく */
-    margin: 0;
-    background: rgba(255, 255, 255, 0.05);
-    color: #aee;
-    border: 1px solid #555;
-    font-size: 2rem;
-    padding: 1rem 0;
-    border-radius: 1rem;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 0 8px rgba(100, 200, 255, 0.2);
-    transition: all 0.2s ease;
-  }
-
-  .mobile-start-btn,
-  .mobile-restart-btn {
-    position: fixed;
-    bottom: 7rem;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 1.5rem;
-    padding: 1rem 2rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid #555;
-    color: #aee;
-    border-radius: 1rem;
-    z-index: 1001;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 0 8px rgba(100, 200, 255, 0.2);
   }
 }
+

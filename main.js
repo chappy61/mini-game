@@ -5,10 +5,7 @@ const guide = document.getElementById('guide');
 const gameOverDisplay = document.getElementById('gameOver');
 const startScreen = document.getElementById('startScreen');
 const resultScreen = document.getElementById('resultScreen');
-const finalScore = document.getElementById('finalScore');
-const scoreDisplay = document.getElementById('scoreDisplay');
-const leftBtn = document.getElementById('left-btn');
-const rightBtn = document.getElementById('right-btn');
+const finalScore = document.getElementById('finalScore')
 
 let playerX = gameArea.offsetWidth / 2;
 let hp = 3;
@@ -18,14 +15,14 @@ let enemyInterval;
 let bulletInterval;
 
 // ==========================
-// ゲーム開始・再開
+// スタート画面
 // ==========================
+// Enterでゲーム開始
 document.addEventListener('keydown', (e) => {
-  if (!isGameRunning && (e.key === 'Enter' || e.key === 'r')) {
+  if (!isGameRunning && e.key === 'Enter') {
     startGame();
   }
 });
-
 function startGame() {
   startScreen.classList.add('hidden');
   resultScreen.classList.add('hidden');
@@ -33,66 +30,40 @@ function startGame() {
   score = 0;
   hp = 3;
   updateHPDisplay();
-  updateScoreDisplay();
+  updateScoreDisplay(); // あとで作る
 
   playerX = gameArea.offsetWidth / 2;
   player.style.left = `${playerX}px`;
 
-  guide.style.display = 'block';
-
+  // 敵＆弾の発生開始
   enemyInterval = setInterval(spawnEnemy, 1000);
   bulletInterval = setInterval(spawnBullet, 800);
-
-  document.getElementById('mobileStartBtn')?.classList.add('hidden');
- document.getElementById('mobileRestartBtn')?.classList.add('hidden');
-
 }
 
 // ==========================
-// 移動操作
+// プレイヤー移動
 // ==========================
-function moveLeft() {
-  const step = 20;
-  playerX -= step;
-  if (playerX < 0) playerX = 0;
-  player.style.left = `${playerX}px`;
-}
-
-function moveRight() {
+document.addEventListener('keydown', (e) => {
   const step = 20;
   const areaWidth = gameArea.offsetWidth;
-  playerX += step;
+
+  if (e.key === 'ArrowLeft') playerX -= step;
+  if (e.key === 'ArrowRight') playerX += step;
+
+  // 範囲制限
+  if (playerX < 0) playerX = 0;
   if (playerX > areaWidth) playerX = areaWidth;
+
   player.style.left = `${playerX}px`;
-}
-
-// PCキー操作
-document.addEventListener('keydown', (e) => {
-  if (!isGameRunning) return;
-  if (e.key === 'ArrowLeft') moveLeft();
-  if (e.key === 'ArrowRight') moveRight();
-});
-
-// スマホタッチ操作対応
-['touchstart', 'mousedown'].forEach(evt => {
-  leftBtn?.addEventListener(evt, (e) => {
-    if (isGameRunning) moveLeft();
-  });
-  rightBtn?.addEventListener(evt, (e) => {
-    if (isGameRunning) moveRight();
-  });
 });
 
 // ==========================
-// 表示更新
+// HP表示
 // ==========================
 function updateHPDisplay() {
   hpDisplay.textContent = `HP: ${hp}`;
 }
-
-function updateScoreDisplay() {
-  scoreDisplay.textContent = `SCORE: ${score}`;
-}
+updateHPDisplay();
 
 // ==========================
 // 当たり判定
@@ -100,6 +71,7 @@ function updateScoreDisplay() {
 function isColliding(a, b) {
   const rectA = a.getBoundingClientRect();
   const rectB = b.getBoundingClientRect();
+
   return !(
     rectA.bottom < rectB.top ||
     rectA.top > rectB.bottom ||
@@ -123,15 +95,21 @@ function spawnEnemy() {
     posY += 4;
     enemy.style.top = posY + 'px';
 
+    // 敵 vs プレイヤー
     if (isColliding(enemy, player)) {
       clearInterval(fall);
       enemy.remove();
       hp--;
       updateHPDisplay();
-      if (hp <= 0) triggerGameOver();
+      console.log(`>>> HIT DETECTED - HP: ${hp}`);
+      if (hp <= 0) {
+        console.log(">>> PROCESS TERMINATED");
+        triggerGameOver();
+      }
       return;
     }
 
+    // 下に出たら削除
     if (posY > window.innerHeight) {
       clearInterval(fall);
       enemy.remove();
@@ -142,6 +120,8 @@ function spawnEnemy() {
 // ==========================
 // 弾（▲）生成
 // ==========================
+const bullets = [];
+
 function spawnBullet() {
   const bullet = document.createElement('div');
   bullet.classList.add('bullet');
@@ -153,6 +133,7 @@ function spawnBullet() {
   bullet.style.top = playerRect.top - areaRect.top - 10 + 'px';
 
   gameArea.appendChild(bullet);
+  bullets.push(bullet);
 
   let posY = playerRect.top - areaRect.top - 10;
   const speed = 6;
@@ -163,13 +144,13 @@ function spawnBullet() {
 
     const enemies = document.querySelectorAll('.enemy');
     enemies.forEach(enemy => {
-      if (isColliding(bullet, enemy)) {
+        if (isColliding(bullet, enemy)) {
         enemy.remove();
         bullet.remove();
         clearInterval(move);
         score++;
         updateScoreDisplay();
-      }
+        }
     });
 
     if (posY < 0) {
@@ -180,7 +161,7 @@ function spawnBullet() {
 }
 
 // ==========================
-// ゲームオーバー処理
+// ゲームオーバー演出
 // ==========================
 function triggerGameOver() {
   isGameRunning = false;
@@ -189,20 +170,86 @@ function triggerGameOver() {
   guide.style.display = 'none';
   finalScore.textContent = `SCORE: ${score}`;
   resultScreen.classList.remove('hidden');
-
-  if (window.innerWidth <= 768) {
-  document.getElementById('mobileRestartBtn')?.classList.remove('hidden');
 }
 
+
+// （補助：キー操作切り離し）
+function handleMovement(e) {
+  const step = 20;
+  const areaWidth = gameArea.offsetWidth;
+
+  if (e.key === 'ArrowLeft') playerX -= step;
+  if (e.key === 'ArrowRight') playerX += step;
+
+  if (playerX < 0) playerX = 0;
+  if (playerX > areaWidth) playerX = areaWidth;
+
+  player.style.left = `${playerX}px`;
+}
+document.addEventListener('keydown', (e) => {
+  if (!isGameRunning && e.key === 'r') {
+    startGame();
+  }
+});
+// ==========================
+// スコア処理
+// ==========================
+const scoreDisplay = document.getElementById('scoreDisplay');
+
+function updateScoreDisplay() {
+  scoreDisplay.textContent = `SCORE: ${score}`;
 }
 
-// スマホでゲームスタート
-document.getElementById('mobileStartBtn')?.addEventListener('click', () => {
-  startGame();
-});
+// ==========================
+// 開始処理
+// ==========================
+enemyInterval = setInterval(spawnEnemy, 1000);
+bulletInterval = setInterval(spawnBullet, 800);
 
-// スマホでリスタート
-document.getElementById('mobileRestartBtn')?.addEventListener('click', () => {
-  startGame();
-});
+clearInterval(enemyInterval);
+clearInterval(bulletInterval);
+// ==========================
+//　モバイル用
+// ==========================
+const moveInterval = {
+  left: null,
+  right: null
+};
 
+function moveCharacter(direction) {
+  const step = 10;
+  const areaWidth = gameArea.offsetWidth;
+
+  if (direction === 'left') playerX -= step;
+  if (direction === 'right') playerX += step;
+
+  if (playerX < 0) playerX = 0;
+  if (playerX > areaWidth) playerX = areaWidth;
+
+  player.style.left = `${playerX}px`;
+}
+
+function startMove(direction) {
+  moveCharacter(direction);
+  moveInterval[direction] = setInterval(() => moveCharacter(direction), 100);
+}
+
+function stopMove(direction) {
+  clearInterval(moveInterval[direction]);
+  moveInterval[direction] = null;
+}
+
+// ボタンイベント（左右だけ対応）
+leftBtn.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  startMove('left');
+});
+leftBtn.addEventListener('touchend', () => stopMove('left'));
+leftBtn.addEventListener('touchcancel', () => stopMove('left'));
+
+rightBtn.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  startMove('right');
+});
+rightBtn.addEventListener('touchend', () => stopMove('right'));
+rightBtn.addEventListener('touchcancel', () => stopMove('right'));
