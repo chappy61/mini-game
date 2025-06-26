@@ -1,44 +1,45 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ミニゲーム</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <!-- スコア・HP 外枠 -->
-  <div class="ui-top-bar">
-    <div id="scoreDisplay">SCORE: 0</div>
-    <div id="hpDisplay">HP: 3</div>
-  </div>
-
-  <!-- メインゲームエリア -->
-  <div class="game-container">
-    <div class="mobile-controls left">
-      <button id="leftBtn">◀</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ミニゲーム</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- スコア・HP 外枠 -->
+    <div class="ui-top-bar">
+      <div id="scoreDisplay">SCORE: 0</div>
+      <div id="hpDisplay">HP: 3</div>
     </div>
 
-    <div class="game-area" id="gameArea">
-      <div id="startScreen" class="overlay-screen">
-        <div class="start-message">TAP TO START</div>
+    <!-- メインゲームエリア -->
+    <div class="game-container">
+      <div class="mobile-controls left">
+        <button id="leftBtn">◀</button>
       </div>
-      <div id="resultScreen" class="overlay-screen hidden">
-        <div class="result-message">
-          <div id="finalScore">SCORE: 0</div>
-          <div>TAP TO RESTART</div>
+
+      <div class="game-area" id="gameArea">
+        <div id="startScreen" class="overlay-screen">
+          <button id="startBtn" class="start-btn">▶ START</button>
         </div>
+        <div id="resultScreen" class="overlay-screen hidden">
+          <div class="result-message">
+            <div id="finalScore">SCORE: 0</div>
+            <div>TAP TO RESTART</div>
+            <button id="restartBtn" class="restart-btn mobile-only">🔁 RESTART</button>
+          </div>
+        </div>
+        <div class="player" id="player">△</div>
+        <div class="guide" id="guide">← →キーで移動してね！</div>
+        <div class="game-over" id="gameOver">GAME OVER</div>
       </div>
-      <div class="player" id="player">△</div>
-      <div class="guide" id="guide">← →キーで移動してね！</div>
-      <div class="game-over" id="gameOver">GAME OVER</div>
+
+      <div class="mobile-controls right">
+        <button id="rightBtn">▶</button>
+      </div>
     </div>
 
-    <div class="mobile-controls right">
-      <button id="rightBtn">▶</button>
-    </div>
-  </div>
-
-  <script src="main.js"></script>
-</body>
+    <script src="main.js"></script>
+  </body>
 </html>
